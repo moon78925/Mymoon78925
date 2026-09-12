@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>极简文件下载站</title>
+    <style>
+        /* --- CSS 样式部分 --- */
+        :root {
+            --primary-color: #4a90e2;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-sub: #777777;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            color: var(--text-sub);
+            font-size: 0.95rem;
+        }
+
+        .download-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .file-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .file-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .file-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .file-meta {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        .btn-download {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-download:hover {
+            background-color: #357abd;
+        }
+
+        /* 简单的图标模拟 */
+        .icon {
+            margin-right: 8px;
+            font-style: normal;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>📂 资源下载中心</h1>
+            <p class="subtitle">点击下方按钮即可生成并下载演示文件</p>
+        </header>
+
+        <ul class="download-list">
+            <!-- 文件卡片 1 -->
+            <li class="file-card">
+                <div class="file-info">
+                    <span class="file-name"><i class="icon">📄</i>欢迎说明.txt</span>
+                    <span class="file-meta">大小: 自动生成 | 类型: 纯文本</span>
+                </div>
+                <!-- onclick 触发 JS 函数 -->
+                <button class="btn-download" onclick="downloadTextFile('welcome.txt', '你好！这是你从网页下载的纯文本文件。\n祝你使用愉快！')">下载</button>
+            </li>
+
+            <!-- 文件卡片 2 -->
+            <li class="file-card">
+                <div class="file-info">
+                    <span class="file-name"><i class="icon">💻</i>hello_world.js</span>
+                    <span class="file-meta">大小: 自动生成 | 类型: JavaScript 代码</span>
+                </div>
+                <button class="btn-download" onclick="downloadCodeFile()">下载</button>
+            </li>
+
+            <!-- 文件卡片 3 -->
+            <li class="file-card">
+                <div class="file-info">
+                    <span class="file-name"><i class="icon">📊</i>data_demo.csv</span>
+                    <span class="file-meta">大小: 自动生成 | 类型: Excel 表格数据</span>
+                </div>
+                <button class="btn-download" onclick="downloadCSV()">下载</button>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        // --- JavaScript 逻辑部分 ---
+
+        /**
+         * 通用下载函数：根据内容创建 Blob 对象并触发下载
+         * @param {string} fileName - 文件名 (例如 "test.txt")
+         * @param {string|Blob} content - 文件内容字符串 或 Blob对象
+         * @param {string} mimeType - MIME类型 (例如 "text/plain", "text/csv")
+         */
+        function triggerDownload(fileName, content, mimeType = 'text/plain') {
+            let blob;
+            if (content instanceof Blob) {
+                blob = content;
+            } else {
+                blob = new Blob([content], { type: mimeType });
+            }
+
+            // 创建一个临时的 <a> 标签
+            const link = document.createElement('a');
+            // 创建一个指向 Blob 对象的 URL
+            link.href = URL.createObjectURL(blob);
+            // 设置下载属性及文件名
+            link.download = fileName;
+
+            // 将链接添加到文档中（虽然不可见）
+            document.body.appendChild(link);
+            // 模拟点击
+            link.click();
+
+            // 清理：移除链接并释放内存
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        // 功能 1: 下载普通文本
+        function downloadTextFile(name, text) {
+            triggerDownload(name, text);
+        }
+
+        // 功能 2: 下载一段代码
+        function downloadCodeFile() {
+            const codeContent = `console.log("Hello World!");\nfunction add(a, b) {\n  return a + b;\n}`;
+            triggerDownload('hello_world.js', codeContent, 'application/javascript');
+        }
+
+        // 功能 3: 下载 CSV 表格数据 (Excel可打开)
+        function downloadCSV() {
+            // CSV 格式：逗号分隔值
+            const csvContent = `姓名,年龄,职业\n张三,25,工程师\n李四,30,设计师\n王五,28,产品经理`;
+            // 添加 BOM (\uFEFF) 防止 Excel 打开中文乱码
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            triggerDownload('data_demo.csv', blob);
+        }
+    </script>
+</body>
+</html>
