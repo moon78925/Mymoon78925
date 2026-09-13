@@ -1,0 +1,8 @@
+# VS缓存目录
+.vs/
+*.sqlite
+*.vswuo
+
+# 系统文件
+.DS_Store
+Thumbs.db
